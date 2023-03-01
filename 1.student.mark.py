@@ -103,6 +103,7 @@ def insert_courses():
     """
 
     courses = []
+    no_courses = 0
 
     # Make sure the no_courses is valid
     while True:
