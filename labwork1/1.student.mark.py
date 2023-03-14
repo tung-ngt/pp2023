@@ -53,8 +53,32 @@ def get_course_id(courses):
     else:
         # Found the id
         return id
+    
+def input_students(reserved_ids):
+    """Input a valid students and return it
+    
+    Parameters
+    ----------
+    reserved_ids : list of reserved ids
 
-def insert_students():
+    Return {id: string, name: string, dob: string}
+    """
+
+    # Make sure the student's id is unique
+    id = ""
+    while True:
+        id = input("ID: ")
+        if id not in reserved_ids:
+            reserved_ids.append(id)
+            break
+        else:
+            print("The id already exist, please re-enter")
+
+    name = input("Name: ")
+    dob = input("DoB: ") 
+    return {"id": id, "name": name, "dob": dob}
+
+def init_students():
     """Insert the student to the course
     
     return the list of students
@@ -77,26 +101,45 @@ def insert_students():
         
     reserved_ids = []
     for i in range(no_students):
-        student = {}
-        id = ""
-
-        # Make sure the student's id is unique
-        while True:
-            id = input("ID: ")
-            if id not in reserved_ids:
-                reserved_ids.append(id)
-                break
-
-        student["id"] = id
-        student["name"] = input("Name: ")
-        student["dob"] = input("DoB: ") 
-        students.append(student)
+        students.append(input_students(reserved_ids))
         print()
-
+        
     return students
 
+def input_courses(reserved_ids, reserved_names):
+    """Input a valid students and return it
+    
+    Parameters
+    ----------
+    reserved_ids : list of reserved ids
+    reserved_names : list of reserved names
 
-def insert_courses():
+    Return {id: string, name: string}
+    """
+
+    # Make sure the student's id is unique
+    id = ""
+    while True:
+        id = input("ID: ")
+        if id not in reserved_ids:
+            reserved_ids.append(id)
+            break
+        else:
+            print("The id already exist, please re-enter")
+
+    # Make sure the course's name is unique
+    name = ""
+    while True:
+        name = input("Name: ")
+        if name not in reserved_names:
+            reserved_names.append(name)
+            break
+        else:
+            print("The name already exist, please re-enter")
+
+    return {"id": id, "name": name}
+
+def init_courses():
     """Insert courses to the system
     
     return the list of courses
@@ -120,36 +163,12 @@ def insert_courses():
     reserved_ids = []
     reserved_names = []
     for i in range(no_courses):
-        course = {}
-        id = ""
-        # Make sure the course's id is unique
-        while True:
-            id = input("ID: ")
-            if id not in reserved_ids:
-                reserved_ids.append(id)
-                break
-            else:
-                print("The id already exist, please re-enter")
-
-        course["id"] = id
-        name = ""
-
-        # Make sure the course's name is unique
-        while True:
-            name = input("Name: ")
-            if name not in reserved_names:
-                reserved_names.append(name)
-                break
-            else:
-                print("The name already exist, please re-enter")
-
-        course["name"] = name
-        courses.append(course)
+        courses.append(input_courses(reserved_ids, reserved_names))
         print()
     
     return courses
 
-def init_marks(courses, no_students):
+def init_marks(courses):
     """Init the marks
     
     return the marks dict
@@ -158,7 +177,7 @@ def init_marks(courses, no_students):
     marks = {}
     for course in courses:
         # Initialize marks of students in a course to be -1
-        marks[course["id"]] = [-1 for n in range(no_students)]
+        marks[course["id"]] = {}
 
     return marks
 
@@ -166,10 +185,10 @@ def main():
     """Main function"""
 
     # Init students, courses and marks
-    students = insert_students()
+    students = init_students()
     no_students = len(students)
-    courses = insert_courses()
-    marks = init_marks(courses, no_students)
+    courses = init_courses()
+    marks = init_marks(courses)
 
     # Insert courses and marks
     print_commands()
@@ -194,25 +213,30 @@ def main():
             id = get_course_id(courses)
             if id != -1:
                 # Insert mark of student to marks of the course with id
-                for s in range(no_students):
-                    marks[id][s] = float(input(f"({students[s]['id']}) {students[s]['name']}: "))
+                for student in students:
+                    print("enter -1 for student not in course")
+                    m = float(input(f"({student['id']}) {student['name']}: "))
+                    if m == -1:
+                        continue
+                    marks[id][student['id']] = m
 
         elif command in ["s", "students"]:
             # Loop through the students and print them
-            for s in students:
-                print(f"({s['id']}) {s['name']}, {s['dob']}")
+            for student in students:
+                print(f"({student['id']}) {student['name']}, {student['dob']}")
         
         elif command in ["c", "courses"]:
             # Loop through the courses and print them
-            for c in courses:
-                print(f"({c['id']}) {c['name']}")
+            for course in courses:
+                print(f"({course['id']}) {course['name']}")
         
         elif command in ["m", "marks"]:
             # Print the marks of student in a course
-            id = get_course_id(courses)
-            if id != -1:
-                for s in range(no_students):
-                    print(f"({students[s]['id']}) {students[s]['name']} : {marks[id][s]:.2f}")
+            course_id = get_course_id(courses)
+            if course_id != -1:
+                course_marks = marks[course_id]
+                for student_id in course_marks.keys():
+                    print(f"({student_id}) {course_marks[student_id]:.2f}")
         
         else:
             print("Invalid command!")
