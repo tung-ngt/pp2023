@@ -117,7 +117,7 @@ def input_course(reserved_ids, reserved_names):
     Return {id: string, name: string}
     """
 
-    # Make sure the student's id is unique
+    # Make sure the course's id is unique
     id = ""
     while True:
         id = input("ID: ")

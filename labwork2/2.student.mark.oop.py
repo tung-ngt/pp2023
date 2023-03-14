@@ -35,7 +35,7 @@ class Student(InputAndListable):
         self.id = data["id"]
         self.name = data["name"]
         self.dob = data["dob"]
-        return self.id, self.name
+        return self.id
 
 class Course(InputAndListable):
     """Represent course object
@@ -63,8 +63,7 @@ class Course(InputAndListable):
         """
         self.id = data["id"]
         self.name = data["name"]
-        return self.id, self.name
-        
+        return self.id, self.name     
         
 class Marks:
     """Represent marks object
@@ -101,8 +100,6 @@ class Marks:
             return list(self.__marks[course_id].items())
         return []
 
-
-
 def input_student(reserved_ids):
     """Input a valid students and return it
     
@@ -138,7 +135,7 @@ def input_course(reserved_ids, reserved_names):
     Return {id: string, name: string}
     """
 
-    # Make sure the student's id is unique
+    # Make sure the course's id is unique
     id = ""
     while True:
         id = input("ID: ")

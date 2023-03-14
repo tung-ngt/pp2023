@@ -1,5 +1,7 @@
 import curses
 
+#init gui
+
 STDSCR = None
 TERM_WIDTH = 0
 TERM_HEIGHT = 0
@@ -16,7 +18,6 @@ def __init_gui():
     global WHITE_ON_BLACK
     global GREEN
     STDSCR = curses.initscr()
-    print("init gui")
     curses.noecho()
     curses.cbreak()
     if curses.has_colors():
@@ -29,6 +30,8 @@ def __init_gui():
     GREEN = curses.color_pair(2)
     curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK)
     WHITE_ON_BLACK = curses.color_pair(3)
+
+__init_gui()
 
 def deintialize_gui():
     curses.nocbreak()

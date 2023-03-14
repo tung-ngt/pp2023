@@ -5,7 +5,7 @@ class Course(InputAndListable):
     
     Attributes
     ----------
-    id, name
+    id, name, ects
     """
      
     def __init__(self):

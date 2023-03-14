@@ -1,14 +1,27 @@
-from domains import Student, Course
+from domains import Student, Course, Marks
 from gui import *
 from input import *
 from output import *
+import numpy as np
+from math import floor
 
 def input_student(reserved_ids):
+    """Input a valid students and return it
+    
+    Parameters
+    ----------
+    reserved_ids : list of reserved ids
+
+    Return {id: string, name: string, dob: string}
+    """
+
+    # Make sure the student's id is unique
     id = ""
     clear_id = None
     while True:
         id, clear_id = box("ID:", 0, 0, 1, 10, 4, 0)
         if id not in reserved_ids:
+            reserved_ids.append(id)
             break
         else:
             clear_id()
@@ -22,21 +35,35 @@ def input_student(reserved_ids):
     return {"id": id, "name": name, "dob": dob}
 
 def input_course(reserved_ids, reserved_names):
+    """Input a valid students and return it
+    
+    Parameters
+    ----------
+    reserved_ids : list of reserved ids
+    reserved_names : list of reserved names
+
+    Return {id: string, name: string, ects: int}
+    """
+     
     id = ""
     name = ""
     clear_id = None
     clear_name = None
 
+    # Make sure the course's id is unique
     while True:
         id, clear_id = box("ID:", 0, 0, 1, 10, 4, 0)
         if id not in reserved_ids:
+            reserved_ids.append(id)
             break
         else:
             clear_id()
 
+    # Make sure the course's name is unique
     while True:
         name, clear_name = box("Name:", 4, 0, 1, 20, 4, 0)
         if name not in reserved_names:
+            reserved_names.append(name)
             break
         else:
             clear_name()
@@ -52,10 +79,13 @@ class StudentMarkManagement:
     """Student mark management system"""
 
     def __init__(self):
-        self.students = []
-        self.courses = []
         self.no_students = 0
         self.no_courses = 0
+
+        self.students = []
+        self.courses = []
+        self.marks = Marks()
+
         self.init_students()
         self.init_courses()
       
@@ -72,8 +102,8 @@ class StudentMarkManagement:
         for i in range(self.no_students):
             fixed_text(f"Student {i + 1}:", 2, 0)
             student = Student()
-            reserved_ids.append(student.input(input_student(reserved_ids)))
-            clear_info = fixed_text("Added: " + str(student), y=2, x=0)
+            student.input(input_student(reserved_ids))
+            clear_info = fixed_text("Added: " + str(student), y=1, x=0)
             wait()
             clear_info()
             self.students.append(student)
@@ -96,13 +126,12 @@ class StudentMarkManagement:
         for i in range(self.no_courses):
             fixed_text(f"Course {i + 1}:", 2, 0)
             course = Course()
-            id, name = course.input(input_course(reserved_ids, reserved_names))
-            reserved_ids.append(id)
-            reserved_names.append(name)
-            clear_info = fixed_text("Added: " + str(course), y=2, x=0)
+            course.input(input_course(reserved_ids, reserved_names))
+            clear_info = fixed_text("Added: " + str(course), y=1, x=0)
             wait()
             clear_info()
             self.courses.append(course)
+            self.marks.add_course(course.id)
 
         clear_screen()
         refresh()
@@ -110,22 +139,24 @@ class StudentMarkManagement:
 
     def insert_mark(self):
         """Insert mark of students in a course"""
-
-        print_text("INSERTING MARK")
-        refresh()
         # Get course_id
         course = None
         while True:
+            print_text("INSERTING MARK")
             course = self.get_course_id()
             if course != -1:
                 break
         print_text("\n"+str(course), color=GREEN)
+        print_text("\nEnter -1 for student not in course", color=BLACK_ON_WHITE)
         # Insert mark of student to marks of the course with id
-        next_y = [2]
+        next_y = [3]
         clear_functions = []
         for student in self.students:       
-            mark, clear = box(str(student), next_y[0], 0, 1, 5, 0, 0, next_y)
-            student.marks.set_mark(course.id, float(mark))
+            m, clear = box(str(student), next_y[0], 0, 1, 5, 0, 0, next_y)
+            m = float(m)
+            if m == -1:
+                continue
+            self.marks.set_mark(course.id, student.id, m)
             clear_functions.append(clear)
 
         for clear_function in clear_functions:
@@ -165,10 +196,10 @@ d (decending sort) : sort students' gpas in decending order
         refresh()
 
     def list_marks(self):
-        print_text("MARKS",)
         # Get course_id
         course = None
         while True:
+            print_text("MARKS")
             course = self.get_course_id()
             if course != -1:
                 break
@@ -177,25 +208,44 @@ d (decending sort) : sort students' gpas in decending order
         next_row_y = [2]
         row([("ID", 10), ("Name", 20), ("DOB", 12), ("Mark", 6)], next_row_y)
 
-        for student in self.students:
-            row([(student.id, 10), (student.name, 20), (student.dob, 12), (student.marks.get_mark(course.id), 6)], next_row_y)
+        for student_id, mark in self.marks.get_course_marks(course.id):
+            student = None
+            for s in self.students:
+                if s.id == student_id:
+                    student = s
+            row([(student.id, 10), (student.name, 20), (student.dob, 12), (mark, 6)], next_row_y)
 
         wait()
         clear_screen()
         refresh()
+
+    def get_gpa(self, student_id):
+        """Return the gpa of a student with student_id"""
+        marks = []
+        ects = []
+        for course in self.courses:
+            m = self.marks.get_mark(course.id, student_id)
+            if m == -1:
+                continue
+            
+            marks.append(m)
+            ects.append(course.ects)
+
+        gpa = np.dot(np.array(marks), np.array([ects]).T) / sum(ects)
+        return floor(gpa*100)/100
 
     def list_gpa(self):
         print_text("GPA", color=BLACK_ON_WHITE)
         next_row_y = [1]
         row([("ID", 10), ("Name", 20), ("DOB", 12), ("GPA", 6)], next_row_y)
         for student in self.students:
-            row([(student.id, 10), (student.name, 20), (student.dob, 12), (student.gpa(self.courses), 6)], next_row_y)
+            row([(student.id, 10), (student.name, 20), (student.dob, 12), (self.get_gpa(student.id), 6)], next_row_y)
         wait()
         clear_screen()
         refresh()
 
     def sort_gpa(self):
-        self.students.sort(reverse=True, key=(lambda student: student.gpa(self.courses)))
+        self.students.sort(reverse=True, key=(lambda student: self.get_gpa(student.id)))
         self.list_gpa()
 
     def get_course_id(self):
@@ -238,6 +288,8 @@ d (decending sort) : sort students' gpas in decending order
             refresh()
             print_text(str(e))
             wait()
+            clear_screen()
+            refresh()
             return -1
         else:
             # No error, found the id
