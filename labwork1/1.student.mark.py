@@ -54,7 +54,7 @@ def get_course_id(courses):
         # Found the id
         return id
     
-def input_students(reserved_ids):
+def input_student(reserved_ids):
     """Input a valid students and return it
     
     Parameters
@@ -101,12 +101,12 @@ def init_students():
         
     reserved_ids = []
     for i in range(no_students):
-        students.append(input_students(reserved_ids))
+        students.append(input_student(reserved_ids))
         print()
         
     return students
 
-def input_courses(reserved_ids, reserved_names):
+def input_course(reserved_ids, reserved_names):
     """Input a valid students and return it
     
     Parameters
@@ -163,7 +163,7 @@ def init_courses():
     reserved_ids = []
     reserved_names = []
     for i in range(no_courses):
-        courses.append(input_courses(reserved_ids, reserved_names))
+        courses.append(input_course(reserved_ids, reserved_names))
         print()
     
     return courses
@@ -235,8 +235,8 @@ def main():
             course_id = get_course_id(courses)
             if course_id != -1:
                 course_marks = marks[course_id]
-                for student_id in course_marks.keys():
-                    print(f"({student_id}) {course_marks[student_id]:.2f}")
+                for student_id, mark in list(course_marks.items()):
+                    print(f"({student_id}) {mark:.2f}")
         
         else:
             print("Invalid command!")
