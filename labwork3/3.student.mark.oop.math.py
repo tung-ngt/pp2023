@@ -188,7 +188,7 @@ def move_cursor(y, x):
     """Move the cursor to y, x cordinates"""
     curses.setsyx(y, x)
 
-def box(prompt, y, x, height, width, parent_y = 0, parent_x = 0, next_y_reference=[0]):
+def box(prompt, y, x, height, width, parent_y = 0, parent_x = 0, next_y_reference=[0], strip=True):
     """Display a input box
     
     Parameters
@@ -201,6 +201,7 @@ def box(prompt, y, x, height, width, parent_y = 0, parent_x = 0, next_y_referenc
     parent_y : if specified set y orgin to parent_y (default 0)
     parent_x : if specified set x orgin to parent_x (default 0)
     next_y_reference : optional the list [y] reference
+    strip : trim the text (default True)
 
     Return (text, clear_box)
     ---------
@@ -217,14 +218,17 @@ def box(prompt, y, x, height, width, parent_y = 0, parent_x = 0, next_y_referenc
     STDSCR.refresh()
     box_win.refresh()
     textbox.edit()
+    input_text = textbox.gather()
+    if strip:
+        input_text = input_text.strip()
     
     next_y_reference[0] += height+4
 
     def clear():
         clear_text()
         clear_win(box_win)
-
-    return textbox.gather(), clear
+    
+    return input_text, clear
 
 def wait():
     """Wait for a key and return it"""
