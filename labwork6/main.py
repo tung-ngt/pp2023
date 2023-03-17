@@ -6,6 +6,7 @@ import numpy as np
 from math import floor
 from compress import *
 from Exceptions import *
+import pickle
 import os
 
 def input_student(reserved_ids):
@@ -104,49 +105,32 @@ class StudentMarkManagement:
                 decompress("./data/students.dat")
                 try:
                     # Open students file
-                    with open("./data/students.txt", "r") as students_file:
-                        students_data = students_file.readlines()
- 
-                        if len(students_data) == 0:
-                            raise NoStudentFound()
-
-                        # For each student append them in the students list                        
-                        for data in students_data:
-                            _student = data.strip().split(",")
-                            new_student = Student()
-                            new_student.input({"id": _student[0], "name": _student[1], "dob": _student[2]})
-                            self.students.append(new_student)
-                except NoStudentFound:
-                    # Input students if no students exist
+                    with open("./data/students.txt", "rb") as students_file:
+                        self.students = pickle.load(students_file)
+                except Exception:
+                    # Input students if students file does not exist
+                    self.students = []
                     self.init_students()
 
                 try:
                     # Open courses file
-                    with open("./data/courses.txt", "r") as courses_file:
-                        courses_data = courses_file.readlines()
-
-                        if len(courses_data) == 0:
-                            raise NoCourseFound()
-                        
-                        # For each course append them in the course list
-                        for data in courses_data:
-                            _course = data.strip().split(",")
-                            new_course = Course()
-                            new_course.input({"id": _course[0], "name": _course[1], "ects": float(_course[2])})
-                            self.courses.append(new_course)
-                except NoCourseFound:
-                    # Input courses if no courses exist
+                    with open("./data/courses.txt", "rb") as courses_file:
+                        self.courses = pickle.load(courses_file)
+                except Exception:
+                    # Input courses if no courses file does not exist
+                    self.courses = []
                     self.init_courses()
 
-                # Open marks file and read marks
-                with open("./data/marks.txt", "r") as marks_file:
-                    marks_data = marks_file.readlines()
-                    for data in marks_data:
-                        course_id, marks = data.split("|")
-                        self.marks.add_course(course_id)
-                        for m in marks.split(",")[:-1]:
-                            student_id, mark = m.split(":")
-                            self.marks.set_mark(course_id, student_id, float(mark))
+                try:
+                    # Open marks file and read marks
+                    with open("./data/marks.txt", "rb") as marks_file:
+                        self.marks = pickle.load(marks_file)
+                except:
+                    # Input students if no courses file does not exist
+                    self.marks = Marks()
+                    for course in self.courses:
+                        self.marks.add_course(course.id)
+
             else:
                 raise FileNotFoundError()
         except FileNotFoundError:
@@ -180,9 +164,8 @@ class StudentMarkManagement:
     
     def save_students(self):
         try:
-            students_file = open("./data/students.txt", "w")
-            for student in self.students:
-                student.write_to_file(students_file)
+            students_file = open("./data/students.txt", "wb")
+            pickle.dump(self.students, students_file)
             students_file.close()
             return 1
         except Exception as e:
@@ -217,9 +200,8 @@ class StudentMarkManagement:
 
     def save_courses(self):
         try:
-            courses_file = open("./data/courses.txt", "w")
-            for course in self.courses:
-                course.write_to_file(courses_file)
+            courses_file = open("./data/courses.txt", "wb")
+            pickle.dump(self.courses, courses_file)
             courses_file.close()
             return 1
         except Exception as e:
@@ -251,8 +233,8 @@ class StudentMarkManagement:
         for clear_function in clear_functions:
             clear_function()
         try:
-            marks_file = open("./data/marks.txt", "w")
-            self.marks.write_to_file(marks_file)
+            marks_file = open("./data/marks.txt", "wb")
+            pickle.dump(self.marks, marks_file)
             marks_file.close()
         except Exception as e:
             print(e)
@@ -401,7 +383,7 @@ d (decending sort) : sort students' gpas in decending order
         compress(data_files, "./data/students.dat")
         for file in data_files:
             os.remove(file)
-        print_text("Exited")
+        print("Exited")
 
     def __del__(self):
         deintialize_gui()
