@@ -36,6 +36,12 @@ class Marks:
         return []
     
     def write_to_file(self, file):
+        """Write marks to a file
+        
+        marks will be represented as lines with format:
+        course_id|student_id:marks,student_id:marks,...
+        course_id|student_id:marks,student_id:marks,...
+        """
         for course_id, course_mark in list(self.__marks.items()):
             file.write(f"{course_id}|")
             for student_id, mark in list(course_mark.items()):

@@ -92,35 +92,53 @@ class StudentMarkManagement:
         self.load_data()
       
     def load_data(self):
+        """Load data into the system
+        
+        Try to load data about students, courses and marks from students.dat 
+        else input the data
+        """
         try:
+            # Check if the data file exist
             if os.path.exists("./data/students.dat"):
+                # File exist, decompressing the file, the output will be stored in ./data/ folder
                 decompress("./data/students.dat")
                 try:
+                    # Open students file
                     with open("./data/students.txt", "r") as students_file:
                         students_data = students_file.readlines()
+ 
                         if len(students_data) == 0:
                             raise NoStudentFound()
+
+                        # For each student append them in the students list                        
                         for data in students_data:
                             _student = data.strip().split(",")
                             new_student = Student()
                             new_student.input({"id": _student[0], "name": _student[1], "dob": _student[2]})
                             self.students.append(new_student)
                 except NoStudentFound:
+                    # Input students if no students exist
                     self.init_students()
 
                 try:
+                    # Open courses file
                     with open("./data/courses.txt", "r") as courses_file:
                         courses_data = courses_file.readlines()
+
                         if len(courses_data) == 0:
                             raise NoCourseFound()
+                        
+                        # For each course append them in the course list
                         for data in courses_data:
                             _course = data.strip().split(",")
                             new_course = Course()
                             new_course.input({"id": _course[0], "name": _course[1], "ects": float(_course[2])})
                             self.courses.append(new_course)
                 except NoCourseFound:
+                    # Input students if no courses exist
                     self.init_courses()
 
+                # Open marks file and read marks
                 with open("./data/marks.txt", "r") as marks_file:
                     marks_data = marks_file.readlines()
                     for data in marks_data:

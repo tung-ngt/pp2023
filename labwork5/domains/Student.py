@@ -33,5 +33,10 @@ class Student(InputAndListable):
         return self.id
     
     def write_to_file(self, file):
+        """Write student to a file
+        
+        A student will be represented as a line with format:
+        id,name,dob
+        """
         data_to_write = f"{self.id},{self.name},{self.dob}\n"
         file.write(data_to_write)
