@@ -1,9 +1,6 @@
-import sys
-sys.path.append('..')
-from labwork9.gui import Screen
-from labwork9.constants import COLORS
+from gui import Screen, Label
+from constants import COLORS
 from tkinter import PhotoImage
-from labwork9.gui import Label
 
 class MainScreen(Screen):
     def __init__(self, master):

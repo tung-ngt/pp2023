@@ -1,5 +1,5 @@
-from labwork9.gui import Navbar as guiNav
-from labwork9.constants import COLORS
+from gui import Navbar as guiNav
+from constants import COLORS
 
 class Navbar(guiNav):
     def __init__(self, master, links: list[tuple[str, str]], redirect_funtion):

@@ -1,7 +1,5 @@
-import sys
-sys.path.append('..')
-from labwork9.gui import Screen, Label, Frame, Button
-from labwork9.constants import COLORS
+from gui import Screen, Label, Frame, Button
+from constants import COLORS
 from tkinter import PhotoImage, ttk, Toplevel, Entry, messagebox, Scrollbar, END as tkEND
 class MarkScreen(Screen):
     def __init__(self, master, studentMarkController):
